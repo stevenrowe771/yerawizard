@@ -1,0 +1,59 @@
+import pickle
+import os
+
+# --- Configuration ---
+SPELLS_FILENAME = 'reference_spells.pkl'
+MODEL_FILENAME = 'spell_model_nn.h5' # The model needs to be retrained after this
+CLASS_LABELS_FILENAME = 'spell_class_labels.pkl' # Class labels also need to be regenerated
+
+# --- Specify the spell name to remove ---
+# IMPORTANT: Change this to the exact spell name you want to delete.
+# Ensure spelling and capitalization match your recorded spell names.
+spell_to_remove = "" # <--- CHANGE THIS TO YOUR SPELL NAME
+
+# --- Script Logic ---
+if not os.path.exists(SPELLS_FILENAME):
+    print(f"Error: '{SPELLS_FILENAME}' not found in the current directory.")
+    print("Please ensure you are running this script from the correct folder.")
+else:
+    try:
+        with open(SPELLS_FILENAME, 'rb') as f:
+            reference_spells = pickle.load(f)
+        
+        print(f"Loaded {len(reference_spells)} spell types from '{SPELLS_FILENAME}'.")
+
+        if spell_to_remove in reference_spells:
+            num_patterns_removed = len(reference_spells[spell_to_remove])
+            del reference_spells[spell_to_remove]
+            
+            with open(SPELLS_FILENAME, 'wb') as f:
+                pickle.dump(reference_spells, f)
+            
+            print(f"Successfully removed '{spell_to_remove}' with {num_patterns_removed} patterns.")
+            print(f"Updated '{SPELLS_FILENAME}' saved.")
+            
+            # --- IMPORTANT NEXT STEPS ---
+            print("\n--- CRUCIAL NEXT STEPS ---")
+            print("1. DELETE your old trained model files:")
+            if os.path.exists(MODEL_FILENAME):
+                os.remove(MODEL_FILENAME)
+                print(f"   - Deleted '{MODEL_FILENAME}'")
+            if os.path.exists(CLASS_LABELS_FILENAME):
+                os.remove(CLASS_LABELS_FILENAME)
+                print(f"   - Deleted '{CLASS_LABELS_FILENAME}'")
+            print("   (These files are now outdated as the dataset has changed.)")
+            print("2. Now, go back to your main application.")
+            print("3. RECORD any new patterns for the spell you just deleted (if desired).")
+            print("4. PRESS 't' in the main application to TRAIN the Neural Network model again.")
+            print("   (This will create new .tflite and .pkl files based on the updated data.)")
+            print("--------------------------")
+        else:
+            print(f"Spell '{spell_to_remove}' not found in '{SPELLS_FILENAME}'. No changes made.")
+    
+        print("EXISTING SPELLS:")
+        for spell in reference_spells:
+            print(spell)
+
+    except Exception as e:
+        print(f"An error occurred while processing '{SPELLS_FILENAME}': {e}")
+
