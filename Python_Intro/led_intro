@@ -1,0 +1,17 @@
+from gpiozero import LED
+import time
+
+led = LED(17)
+
+value = int(input("Enter 0 to turn off or 1 to turn on: "))
+
+if value == 0:
+    led.off()
+elif value == 1:
+    led.on()
+else:
+    print("Invalid choice. Please enter 0 or 1")
+    exit()
+
+time.sleep(2)
+print("End")

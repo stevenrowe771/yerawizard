@@ -1,0 +1,78 @@
+from gpiozero import MotionSensor, LED
+from picamzero import Camera
+import yagmail
+import time
+import os
+
+#Initialize peripherals
+camera = Camera()
+camera.flip_camera(hflip = True, vflip = True)
+led = LED(17)
+pir = MotionSensor(4)
+
+#Initialize variables
+folder_name = os.fspath("/home/steve/Desktop/final_project_photos")
+log_filepath = os.fspath("/home/steve/Desktop/final_project_photos/photo_log.txt")
+time_last_photo_taken = 0
+begin_time = time.time()
+counter  = 0
+
+if os.path.exists(log_filepath):
+    os.remove(log_filepath)
+
+#determine if at least 5 seconds have passed between two events (beginning and end of motion)
+def calculate_time(time1, time2):
+    return time2-time1
+
+def take_photo():
+    #If the desired destination folder doesn't exist, create it
+    if not os.path.exists(folder_name):
+        os.mkdir(folder_name)
+    #take a picture with a unique filename (timestamp) for each photo
+    filename = folder_name + "/img_" + str(time.time()) + ".jpg"
+    camera.take_photo(filename)
+    #save new file name to the log file
+    with open(log_filepath, "a") as log:
+        log.write(filename + "\n")
+
+def send_photo_by_email():
+    password = ""
+    with open("/home/steve/.local/share/.email_password", "r") as f:
+        password = f.read().rstrip()
+    yag = yagmail.SMTP("steve771raspi@gmail.com", password)
+    with open(log_filepath, "r") as log:
+        lines = log.readlines()
+        picture_filename = lines[-1].rstrip()
+    yag.send(to="stevenrowe771@gmail.com",
+            subject="New Picture",
+            contents="Here is the most recent photo",
+            attachments=picture_filename)
+
+try:
+    while True:
+        time.sleep(0.01)
+        #always update the end time
+        end_time = time.time()
+
+        if pir.motion_detected:
+            led.on()
+            #if motion is detected for at least 5 seconds, allow a picture to be taken when motion stops
+            if calculate_time(begin_time, end_time) >= 5 and counter == 0:
+                counter = 1
+
+        if not pir.motion_detected:
+            led.off()
+            #only update the begin time when no motion is detected (i.e. pause begin time when motion starts)
+            begin_time = time.time()
+            if counter == 1:
+                print("Taking Photo")
+                take_photo()
+                counter = 2
+            if calculate_time(time_last_photo_taken, end_time) >= 30 and counter == 2:
+                print("Sending Email")
+                send_photo_by_email()
+                #reset the counter and time so only one picture can be taken per 30 second interval
+                counter = 0
+                time_last_photo_taken = time.time()
+except KeyboardInterrupt:
+    print("Done")

@@ -1,0 +1,37 @@
+from flask import Flask
+import os
+
+CAMERA_FOLDER_PATH = "/home/steve/Desktop/final_project_photos"
+app = Flask(__name__, static_url_path=CAMERA_FOLDER_PATH, static_folder=CAMERA_FOLDER_PATH)
+log_filepath = os.fspath(CAMERA_FOLDER_PATH + "/photo_log.txt")
+previous_line_counter = 0
+
+#Add text to the homepage
+@app.route("/")
+def index():
+    return "Hello"
+
+#Tell the user if the button is pressed or not on the push-button page
+@app.route("/check-photos")
+def check_photos():
+    global previous_line_counter
+    new_photos = 0
+    if os.path.exists(log_filepath):
+        with open(log_filepath, "r") as log:
+            lines = log.readlines()
+            for line in lines:
+                new_photos += 1
+                most_recent_photo = lines[-1].rstrip()
+        difference = new_photos - previous_line_counter
+        previous_line_counter = new_photos
+    else:
+        return "No photos available"
+    if difference == 1:
+        new_photos_text = str(difference) + " new photo since last check <br/>"
+    else:
+        new_photos_text = str(difference) + " new photos since last check <br/>"
+    new_photos_text += "Latest photo: " + most_recent_photo + "<br/>"
+    new_photos_text += "<img src= \"" + most_recent_photo + "\">"
+    return new_photos_text
+
+app.run(host="0.0.0.0")

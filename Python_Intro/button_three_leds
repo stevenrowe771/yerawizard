@@ -1,0 +1,34 @@
+from gpiozero import LED, Button
+from signal import pause
+
+led_index = 0
+red_led = LED(17)
+blue_led = LED(27)
+green_led = LED(22)
+button = Button(26, bounce_time=0.05)
+
+red_led.off()
+blue_led.off()
+green_led.off()
+
+def switch_led():
+    global led_index
+    led_index += 1
+    if led_index > 3:
+        led_index = 1
+
+    if led_index == 1:
+        red_led.on()
+        blue_led.off()
+        green_led.off()
+    elif led_index == 2:
+        red_led.off()
+        blue_led.on()
+        green_led.off()
+    elif led_index == 3:
+        red_led.off()
+        blue_led.off()
+        green_led.on()
+
+button.when_pressed = switch_led
+pause()

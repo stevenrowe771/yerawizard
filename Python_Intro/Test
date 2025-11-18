@@ -1,0 +1,20 @@
+import random
+
+number_list = []
+for i in range(0, 10):
+    number_list.append(random.randint(1, 100))
+print(number_list)
+
+#for number in number_list:
+#    if number > max_value:
+#        max_value = number
+#print(max_value)
+
+def find_max_value(list):
+    max_value = list[0]
+    for number in list:
+        if number > max_value:
+            max_value = number
+    return max_value
+
+print(find_max_value(number_list))
