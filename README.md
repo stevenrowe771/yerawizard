@@ -10,7 +10,7 @@ Operating System: Raspberry Pi OS (64-bit) Bookworm (Debian 12).
 
 Note: 64-bit is mandatory for TensorFlow 2.x support on Python 3.11.
 
-Camera: Raspberry Pi Camera Module or USB Webcam.
+Camera: Raspberry Pi V2.1 NoIR Camera Module.
 
 Wand: Retro-reflective tip (IR-reflective) with an IR light ring around the camera.
 
@@ -22,7 +22,7 @@ Before installing the Python environment, update your system and install hardwar
 sudo apt update && sudo apt upgrade -y
 
 ## Install system dependencies for OpenCV and Libcamera
-sudo apt install python3-opencv python3-libcamera libatlas-base-dev -y
+sudo apt install python3-opencv python3-libcamera libatlas-base-dev libopenblas-dev -y
 
 ## (Optional) Enable SSH and VNC
 sudo raspi-config
@@ -41,7 +41,7 @@ source venv/bin/activate
 
 ## Install Machine Learning libraries
 pip install --upgrade pip setuptools
-pip install tensorflow scikit-learn numpy==1.24.3
+pip install -r requirements.txt
 
 
 # Running the Tracker
@@ -62,8 +62,7 @@ TensorFlow Version: If using an .h5 model, ensure you are on a 64-bit OS. 32-bit
 
 # Project Structure
 
-wand_tracker.py: Main execution script for CV and gesture recognition.
-
-models/: Directory containing your trained .h5 Keras models.
+wand_tracker.py: Main execution script for CV and gesture recognition. Also used for recording new spells and changing the affect of each spell.
+nn_trainer.py: Trains the neural network
 
 venv/: Virtual environment (excluded from Git).
