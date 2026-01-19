@@ -37,10 +37,12 @@ cd ~/.../yerawizard
 
 ## Create the environment
 python3 -m venv --system-site-packages venv
+
 source venv/bin/activate
 
 ## Install Machine Learning libraries
 pip install --upgrade pip setuptools
+
 pip install -r requirements.txt
 
 
@@ -49,6 +51,7 @@ pip install -r requirements.txt
 Ensure your camera is connected and recognized (libcamera-hello --list-cameras).
 
 source venv/bin/activate
+
 python3 wand_tracker.py
 
 
